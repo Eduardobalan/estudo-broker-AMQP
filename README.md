@@ -256,6 +256,45 @@ bln:
     enabled: true
 ```
 
+### Exemplo de RPC
+
+O RPC no RabbitMQ permite a comunicação entre serviços de forma assíncrona utilizando filas.
+
+O cliente envia uma requisição para uma fila predefinida, anexando um identificador único (correlationId) e 
+especificando uma replyTo, que define a fila onde deseja receber a resposta. 
+Em seguida, ele inicia um consumidor para essa fila definida na replyTo e bloqueia a thread até que a resposta seja recebida.
+
+O servidor processa a requisição e publica a resposta na fila indicada no replyTo, 
+preservando o mesmo correlationId para garantir a associação correta entre requisição e resposta.
+
+Nesse exemplo, possuimos 1 fila estaticas e N filas dinamicas geradas pelo replyTo. 
+
+**Caracteristicas:**
+
+- exchange:Type=fanout, Direct(durable=true)
+- queue1: type=classic, Features(durable=false, exclusive=false, autoDelete=false)
+- queue1: Dinamicas
+
+**Arquivos envolvidos:**
+
+- `estudo-produtor-api`
+  - ExchangesDirectRPCConsumer.java
+  - ExchangesDirectRPCConsumerConfiguration.java
+- `estudo-consumidor-api`
+  - ExchangesDirectRPCLib2Send.java
+  - ExchangesDirectRPCSend.java
+  - ExchangesDirectRPCProductorConfiguration.java
+
+Configuração para ativação no arquivo `estudo-produtor-api/src/main/resources/application.yml`
+
+```yaml
+bln:
+  exchangesDirectRPC:
+    enabled: true
+  exchangesDirectRPCLib2:
+    enabled: true
+```
+
 ## Referencias
 
 - https://www.amqp.org/specification/0-9-1/amqp-org-download
